@@ -9,15 +9,12 @@ int main(int argc, char *argv[])
 {
 	//check if no command is given
 	if (argc < 2){
-		errno = EINVAL;
-		perror("Error: Invalid number of arguments");
-		exit(EXIT_FAILURE);
+		exit(EINVAL);
 	}
 
 	if (argc == 2){
 		//special case when there's only one command
 		execlp(argv[1], argv[1], NULL);
-		perror("Error: execvp");
 		exit(1);
 	}
 	
@@ -31,7 +28,6 @@ int main(int argc, char *argv[])
 		pipes[i] = (int*)malloc(2 * sizeof(int));
 
 		if (pipe(pipes[i]) == -1) {
-			perror("pipe");
 			exit(1);
 		}
 	}
@@ -40,7 +36,6 @@ int main(int argc, char *argv[])
 	for (int j = 0; j < num_cmds; j++) {
 		pids[j] = fork();
 		if(pids[j] == -1){
-			perror("fork");
 			exit(1);
 		}
 
@@ -72,7 +67,6 @@ int main(int argc, char *argv[])
 			
 			//execute the command
 			execlp(argv[j+1], argv[j+1], NULL);
-			perror("Error: execvp");
 			exit(1);
 			
 		}
@@ -80,7 +74,6 @@ int main(int argc, char *argv[])
 			int status;
 			waitpid(pids[j], &status, 0); //wait for child process to finish and check child status
 			if (WIFEXITED(status) && WEXITSTATUS(status) != 0) {
-				perror("Error: Child process exited with non-zero status");
 				exit(1);
 			}
 
